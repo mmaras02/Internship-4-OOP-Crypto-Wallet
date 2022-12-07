@@ -19,11 +19,10 @@ namespace CryptoWallet.Transactions
         public FungibleAssetTransactions(Guid assetAddress, Wallet senderWallet, Wallet receiverWallet,double amount) : base(assetAddress, senderWallet, receiverWallet)
         {
             TransactionType="Fungible asset transaction";
-            //pridodjelit iz waletta pocetne vrijendosti
             StartingReceiverBalance= (double)receiverWallet.FungibleAssetsBalance[assetAddress];
             StartingSenderBalance= (double)senderWallet.FungibleAssetsBalance[assetAddress];
     
-           GetFinalBalance(senderWallet,receiverWallet,amount);
+            GetFinalBalance(senderWallet,receiverWallet,amount);
             
         }
         public override bool CancelTransaction(Wallet senderWallet,Wallet receiverWallet)
@@ -31,13 +30,9 @@ namespace CryptoWallet.Transactions
             //provjera
             receiverWallet.FungibleAssetsBalance[AssetAddress] =StartingReceiverBalance;
             senderWallet.FungibleAssetsBalance[AssetAddress] =StartingSenderBalance;
+            IsItCanceled=true;
 
             return true;
-        }
-        public FungibleAssetTransactions CreateNewTransaction(Wallet senderWallet,Wallet receiverWallet,Guid assetAddress,double amount)
-        {
-            FungibleAssetTransactions newTransactions=new(assetAddress, senderWallet, receiverWallet, amount);
-            return newTransactions;
         }
         public void GetFinalBalance(Wallet senderWallet,Wallet receiverWallet,double amount)
         {

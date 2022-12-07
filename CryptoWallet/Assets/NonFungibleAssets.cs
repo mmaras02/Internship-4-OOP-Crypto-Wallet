@@ -17,10 +17,6 @@ namespace CryptoWallet.Assets
             AllowedFungibleAssetAddress=supportedFungibleAssetAddress;
             AssetType="Non fungible asset";
         }
-        // public Guid GetFungibleAssetAddress()
-        // {
-        //     return AllowedFungibleAssetAddress;
-        // }
    /*      public bool FindSupportedFungibleAsset(List<FungibleAssets>fungibleAssetList,Guid nonFungible)
         {
             fungibleAssetList.Find(x=>x.Address.Equals())

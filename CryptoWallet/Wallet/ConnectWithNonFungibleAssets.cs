@@ -27,7 +27,7 @@ namespace CryptoWallet.Wallets
             foreach(var item in fungibleAssetList)
             {
                 AllowedFungibleAssets.Add(item.Address);
-                IncreaseFungibleAssetsBalance(item.Address,10);//napravi da stavlja random vrijednost-->nemoze bit fiksnp
+                IncreaseFungibleAssetsBalance(item.Address,0);
             }
             foreach(var item in nonFungibleAssetList)
             {

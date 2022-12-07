@@ -21,6 +21,5 @@ namespace CryptoWallet.Assets
             //Value=value;
             AssetType="";
         }
-
     }
 }

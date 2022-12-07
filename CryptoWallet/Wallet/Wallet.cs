@@ -79,29 +79,9 @@ namespace CryptoWallet.Wallets
             FungibleAssetTransactions newTransaction=new(assetAddress,this,receiverWallet,amount);
             return newTransaction;
         }
-        /* public virtual bool RemoveSupportedAsset(Guid fungibleAssets)
-{
-   if(!AllowedAssets.Contains(fungibleAssets))
-       return false;
-   AllowedAssets.Remove(fungibleAssets);
-   FungibleAssetsBalance.Remove(fungibleAssets);
-   return true;
-} */
-        /* public virtual bool RecordTransactionHistory(Wallet receiverWallet,Guid assetAddress,double amount)
-        {
-            if(!receiverWallet.AllowedFungibleAssets.Contains(assetAddress))
-                return false;
-            //FungibleAssetTransactions newTransaction=new (assetAddress,this,receiverWallet,amount);
-            //TransactionHistory.Add(newTransaction);
-            //TransactionHistory.Add(assetAddress);
-            FungibleAssetTransactions newTransaction=new(assetAddress,senderWallet,receiverWallet,amount)
-            TransactionHistory[assetAddress]=newTransaction;
-            return true;
-        }
-      */
         public void MakeFungibleTransaction(Wallet receiverWallet,Guid assetAddress,double amount)
         {
-            //FungibleAssets newAsset;
+
             if(!this.AllowedFungibleAssets.Contains(assetAddress))
                 return;
             if(!receiverWallet.AllowedFungibleAssets.Contains(assetAddress))
@@ -136,40 +116,18 @@ namespace CryptoWallet.Wallets
             this.TransactionHistory.Add(newTransaction.GetId(),newTransaction);
     
             Console.WriteLine("You have made a successfull transfer");
-
-            //make method to change crypto value
         }
-       /*  public virtual void MakeNonFungibleTransaction(Wallet receiverWallet,Guid assetAddress,double amount)
-        {
-            if(!this.DoesOwnNonFungibleAsset())
-            {
-                Console.WriteLine("Your wallet does no own this asser!");
-                return;
-            }
-            if(receiverWallet)
-                
-        }
- */
-
         public virtual double TotalValueOfFungibleAssetsInUSD(List<FungibleAssets> fungibleAssetList)//ova je samo za FA
         {
             //var wallet = wallets.Find(x => x.Address.Equals(walletAddress));
             double sum = 0;
             foreach (var item in FungibleAssetsBalance)
             {
-                //var asset=fungibleAssetList.Find(x=>x.Address.Equals(item.Key));
-                //sum+=item.Value*asset.GetValueInUSD();
-                foreach(var item1 in fungibleAssetList)
-                {
-                    if(item.Key==item1.Address)
-                        sum+=item.Value * item1.GetValueInUSD();
-                }
+                var asset=fungibleAssetList.Find(x=>x.Address.Equals(item.Key));
+                sum+=item.Value*asset.GetValueInUSD();
             }
             return sum;
         }
-
-        //napravi za racunanje u USD
-        //postotak opadanja i porasta
         public virtual void PrintAssets(List<FungibleAssets> fungibleAssetList, List<NonFungibleAssets> nonFungibleAssetList)
         {
                 foreach(var item in FungibleAssetsBalance)
@@ -186,6 +144,15 @@ namespace CryptoWallet.Wallets
                 if(item.Address==address) return item;
             }
             return null;
+        }
+        public void PrintTransaction()
+        {
+            var listSorted=TransactionHistory.Values.OrderByDescending(x => x.TransactionDate).ToList();
+            foreach(var item in listSorted)
+            {
+                Console.WriteLine($"Id: {item.GetId()}\nTransaction date: {item.TransactionDate}\nType of transaction: {item.TransactionType}\nSender wallet address: {item.SenderAddress}\nReceiver wallet Address: {item.ReceiverAddress}\n");
+                Console.WriteLine("---------------------------------------------------");
+            }
         }
 
     }

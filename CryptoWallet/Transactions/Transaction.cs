@@ -33,6 +33,10 @@ namespace CryptoWallet.Transactions
                 return false;
             return true;
         }
+        public void PrintTransaction()
+        {
+            
+        }
         //CancellationToken transaction-->novac se vraca u sender vallet s istin assetom na odredenoj adresi
         //-->u receiver walletu se oduzima na istoj adresi tocan iznos transakcije
 

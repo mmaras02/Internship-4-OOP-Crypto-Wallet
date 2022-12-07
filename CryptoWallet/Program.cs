@@ -49,10 +49,31 @@ namespace CryptoWallet
         }
         static void Options()
         {
-            Console.WriteLine("Welcome to your own crypto wallet!\n");
+            Console.WriteLine("=========CRYPTO WALLET=========");
+            Console.WriteLine("\nWelcome to your own crypto wallet!");
             Console.WriteLine("Your options are:");
             Console.WriteLine("1.Create new wallet\n"+
                               "2.Access your wallet\n");
+        }
+        static void SubmenuOptions()
+        {
+            Console.WriteLine("\n\n----------SUBMENU----------");
+            Console.WriteLine("Please enter the action you want to make: ");
+            Console.WriteLine("1.Portafolio\n2.Transfer\n3.Transaction history\n4.Go back to main menu\n");
+        }
+        static bool CheckAddress(Guid walletGuid,Guid receiverWalletAddress,Dictionary<Guid,Wallet>allWallets)
+        {
+            if(walletGuid.ToString()==receiverWalletAddress.ToString())
+            {
+                Console.WriteLine("You entered the address of the wallet you are currently in!");
+                return false;
+            }
+            if(!allWallets.ContainsKey(receiverWalletAddress))
+            {
+                Console.WriteLine("Choosen wallet not found! ");
+                return false;
+            }
+            return true;
         }
         static void CreateWallet(Dictionary<Guid,Wallet>allWallets,List<FungibleAssets>fungibleAssetList,List<NonFungibleAssets>nonFungibleAssetList)
         {
@@ -71,7 +92,6 @@ namespace CryptoWallet
                             BitcoinWallet newBitcoinWallet=new(fungibleAssetList);
                             allWallets.Add(newBitcoinWallet.Address,newBitcoinWallet);
                             Console.WriteLine("You have added another wallet!\n");
-                            //newBitcoinWallet.PrintAllowedFungibleAssets();
                         }
                         break;
                     case 2:
@@ -80,6 +100,8 @@ namespace CryptoWallet
                         {
                             EthereumWallet newEthereumWallet=new(fungibleAssetList,nonFungibleAssetList);
                             allWallets.Add(newEthereumWallet.Address,newEthereumWallet);
+                            Console.WriteLine("You have added another wallet!\n");
+
                         }
                         break;
                     case 3:
@@ -88,7 +110,7 @@ namespace CryptoWallet
                         {
                             SolanaWallet newSolanaWallet=new(fungibleAssetList,nonFungibleAssetList);
                             allWallets.Add(newSolanaWallet.Address,newSolanaWallet);
-                            //newBitcoinWallet.PrintAllowedFungibleAssets();
+                            Console.WriteLine("You have added another wallet!\n");
                         }
                         break;
                     case 0:
@@ -98,37 +120,6 @@ namespace CryptoWallet
                         break;
                 }
             }
-        }
-        static void SubmenuOptions()
-        {
-            Console.WriteLine("Please enter the action you want to make: ");
-            Console.WriteLine("1.Portafolio\n2.Transfer\n3.Transaction history\n4.Go back to main menu\n");
-        }
-        static Guid CheckAddress(Dictionary<Guid,Wallet>allWallets)
-        {
-            string? walletAddress=Console.ReadLine();
-            bool isSuccess = Guid.TryParse(walletAddress, out Guid guidOutput);
-            if (!isSuccess)
-            {
-                Console.WriteLine("Incorrect address input!");
-                //return null;
-            }
-            if(!allWallets.Keys.Equals(guidOutput))
-                Console.WriteLine("address not found!");
-                //return;
-            return guidOutput;
-        }
-        static Guid CheckAsset()
-        {
-            string? assetAddress=Console.ReadLine();
-            bool isSuccess = Guid.TryParse(assetAddress, out Guid guidOutput);
-            if (!isSuccess)
-            {
-                Console.WriteLine("Incorrect address input!");
-                //return;
-            }
-            //if(fungibleAssetList.Contains())
-            return guidOutput;
         }
         static void AccessWallet(Dictionary<Guid,Wallet>allWallets,List<FungibleAssets>fungibleAssetList,List<NonFungibleAssets>nonFungibleAssetList)
         {
@@ -140,41 +131,35 @@ namespace CryptoWallet
                 Console.WriteLine($"{item.Key}\t {item.Value.WalletTypes}\t\t{((decimal)item.Value.TotalValueOfFungibleAssetsInUSD(fungibleAssetList))}");
             }
 
-            Guid walletGuid;
-            Console.WriteLine("Please enter the address of the wallet you want to access: ");
-            //string? walletAddress = int.TryParse(Console.ReadLine(),out guidOutput);
-            //string? guidOutput = CheckAddress(allWallets);
-            walletGuid = CheckAsset();
-            string? walletAddress=Console.ReadLine();
-
-            //napravi provjeru
-            /* foreach(var item in allWallets)
+            Console.WriteLine("Please enter the address of the wallet you want to access:");
+            Guid walletGuid=Guid.Parse(Console.ReadLine());
+            if(!allWallets.ContainsKey(walletGuid))
             {
-                if(!item.Key.Equals(walletAddress))
-                {
-                    Console.WriteLine("You have entered invalid address! Please try again:");
-                }
-            } */
-
-            //Console.Clear();
-            SubmenuOptions();
-            int.TryParse(Console.ReadLine(),out var choice);
-            switch(choice)
-            {
-                case 1:
-                    Portafolio(walletGuid,allWallets,fungibleAssetList,nonFungibleAssetList);//dodat portafolioClass(helperClass)??
-                    break;
-                case 2:
-                    Transfer(walletGuid,allWallets,fungibleAssetList,nonFungibleAssetList);
-                    break;
-                case 3:
-                    //TransactionHistory();
-                    break;
-                case 4:
-                    break;
-                default:
-                    break;
+                Console.WriteLine("Choosen wallet not found! ");
+                return;
             }
+            //Console.Clear();
+            var choice=-1;
+            do{
+                SubmenuOptions();
+                int.TryParse(Console.ReadLine(),out choice);
+                switch(choice)
+                {
+                    case 1:
+                        Portafolio(walletGuid,allWallets,fungibleAssetList,nonFungibleAssetList);//dodat portafolioClass(helperClass)??
+                        break;
+                    case 2:
+                        Transfer(walletGuid,allWallets,fungibleAssetList,nonFungibleAssetList);
+                        break;
+                    case 3:
+                        TransactionHistory(allWallets,walletGuid);
+                        break;
+                    case 4:
+                        break;
+                    default:
+                        break;
+                }
+            }while(choice!=4);
 
         }
         
@@ -207,16 +192,29 @@ namespace CryptoWallet
             }
             //trazimo
         }
+        static bool CheckAsset(List<FungibleAssets>fungibleAssetList,Guid assetAddress)
+        {
+            foreach(var item in fungibleAssetList)
+            {
+                if(!item.Address.Equals(assetAddress))
+                {
+                    Console.WriteLine("Asset not found in wallet!");
+                    return false;
+                }
+            }
+            return true;
+        }
         static void Transfer(Guid walletGuid,Dictionary<Guid,Wallet>allWallets,List<FungibleAssets>fungibleAssetList,List<NonFungibleAssets>nonFungibleAssetList)
         {
             Console.WriteLine("Enter the address of the receiver wallet");
-            //string? receiverWalletAddressString=Console.ReadLine();
             Guid receiverWalletAddress=Guid.Parse(Console.ReadLine());
+            if(!CheckAddress(walletGuid,receiverWalletAddress,allWallets))
+                return;
+
             Console.WriteLine("Enter the asset address you want to transfer");
-            //var assetName=Console.ReadLine();   
-            //Guid nfAsset=nonFungibleAssetList.Find(x => x.Name.Equals(assetName)).Address;//provaj popravit tablicu
-            string? assetsAddress=Console.ReadLine();
-            Guid assetAddress=Guid.Parse(assetsAddress);
+            Guid assetAddress=Guid.Parse(Console.ReadLine());
+            if(!CheckAsset(fungibleAssetList,assetAddress))
+                return;
 
             bool isFungable=false;
             foreach(var item in fungibleAssetList)
@@ -248,10 +246,50 @@ namespace CryptoWallet
                 }
             }
         }
-        static List<FungibleAssets> AddFungibleAssets()//GetAllData()
+        static void TransactionHistory(Dictionary<Guid,Wallet>allWallets,Guid walletAddress)
         {
-            //Dictionary<string,FungibleAssets>fungibleAssetsDictionary=new Dictionary<string, FungibleAssets>();
+            Console.Clear();
+            Wallet walletOfInterest=allWallets[walletAddress];
 
+            walletOfInterest.PrintTransaction();
+
+            Console.WriteLine("\n\n----------SUBMENU----------");
+            Console.WriteLine("1.Cancel transaction\n2.Go back one page");
+            int.TryParse(Console.ReadLine(),out var choice);
+            if(choice==2)
+                return;
+            if(choice!=2 && choice!=1)
+            {
+                Console.WriteLine("Invalid input!\n");
+                return;
+            }
+            
+            Console.Write("\nPlease enter the ID of the transaction you want to cancel: ");
+            Guid transactionId=Guid.Parse(Console.ReadLine());
+
+            if(!walletOfInterest.TransactionHistory.ContainsKey(transactionId))
+                return;
+            
+            Transaction foundTransaction=walletOfInterest.TransactionHistory[transactionId];//koja je transakcija-->iz transakcije nadi sender/receiver adrese
+            Wallet senderWallet=allWallets[foundTransaction.SenderAddress];
+            Wallet receiverWallet=allWallets[foundTransaction.ReceiverAddress];
+
+            if(!UserInput())
+            {
+                Console.WriteLine("Action has been stopped!");
+                return;
+            }
+
+            if (DateTime.Now.Subtract(foundTransaction.TransactionDate).TotalSeconds > 45)
+            {
+                Console.WriteLine("You ran out of time to compleate the cancelation!\n");
+                return;
+            }
+            foundTransaction.CancelTransaction(senderWallet,receiverWallet);
+            //return;
+        }
+        static List<FungibleAssets> AddFungibleAssets()
+        {
             var bitcoin=new FungibleAssets("bitcoin",16989.53,"BTC");
             var etherum=new FungibleAssets("etherum",1207,"ETH");
             var dogecoin=new FungibleAssets("dogecoin",0.1,"DOGE");

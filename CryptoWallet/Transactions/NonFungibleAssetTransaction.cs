@@ -9,7 +9,7 @@ namespace CryptoWallet.Transactions
 {
     public class NonFungibleAssetTransactions:Transaction
     { 
-        public NonFungibleAssetTransactions(Guid assetAddress, ConnectWithNonFungibleAssets senderWallet, ConnectWithNonFungibleAssets receiverWallet):base(assetAddress,senderWallet,receiverWallet)
+        public NonFungibleAssetTransactions(Guid assetAddress, Wallet senderWallet, Wallet receiverWallet):base(assetAddress,senderWallet,receiverWallet)
         {
             IsItCanceled=false;
             TransactionType="Non fungible asset transaction";
@@ -18,9 +18,9 @@ namespace CryptoWallet.Transactions
             receiverWallet.OwnedNonFungibleAssets.Add(assetAddress);       
         }
 
-        public NonFungibleAssetTransactions(Guid assetAddress, Wallet senderWallet, Wallet receiverWallet) : base(assetAddress, senderWallet, receiverWallet)
-        {
-        }
+        // public NonFungibleAssetTransactions(Guid assetAddress, Wallet senderWallet, Wallet receiverWallet) : base(assetAddress, senderWallet, receiverWallet)
+        // {
+        // }
 
         /* public NonFungibleAssetTransactions CreateNewTransaction(Wallet senderWallet,Wallet receiverWallet,Guid assetAddress)
         {
