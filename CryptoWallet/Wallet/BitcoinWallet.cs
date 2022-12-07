@@ -3,17 +3,12 @@ using System.Collections.Generic;
 using CryptoWallet.Assets;
 using CryptoWallet.Wallets;
 
-//ako kreiramo novi wallet onda odma pridodajemo sve allowed assets i stavimo novi balance
-//
 namespace CryptoWallet.Wallets
 {
     public class BitcoinWallet : Wallet
     {
         public BitcoinWallet() :base(){}
-        List<string>allowedAssets=new List<string>{"bitcoin", "ethereum", "dogecoin","solana","polygon", "xrp", "tether", "polkadot", "cosmos"};
-
-
-        //private List<string> AllowedAssetNames = new(){"bitcoin", "ethereum", "dogecoin","solana","polygon", "xrp", "tether", "polkadot", "cosmos"};
+       
         public override bool AddSupportedFungibleAsssets(Guid fungibleAssets) => base.AddSupportedFungibleAsssets(fungibleAssets);
         public override bool IncreaseFungibleAssetsBalance(Guid fungibleAssets, double amountToAdd) => base.IncreaseFungibleAssetsBalance(fungibleAssets, amountToAdd);
         public override bool ReduceSupportedFungibleAssetsBalance(Guid fungibleAssets, double amountToRemove) => base.ReduceSupportedFungibleAssetsBalance(fungibleAssets, amountToRemove);
@@ -22,15 +17,15 @@ namespace CryptoWallet.Wallets
         {
             WalletTypes="Bitcoin wallet";
 
-            for(var asset=0;asset<allowedAssets.Count;asset++)
+            foreach(var item in fungibleAssetList)
             {
-                AllowedFungibleAssets.Add(fungibleAssetList[asset].Address);
-                IncreaseFungibleAssetsBalance(fungibleAssetList[asset].Address,5);//random stavi
+                AllowedFungibleAssets.Add(item.Address);
+                IncreaseFungibleAssetsBalance(item.Address,5);//random stavi
             }
         }
         public void PrintAllowedFungibleAssets()
         {
-            foreach(var item in allowedAssets)
+            foreach(var item in FungibleAssetsBalance)
                 Console.WriteLine(item);
         }
     }

@@ -50,8 +50,12 @@ namespace CryptoWallet.Wallets
                 FungibleAssetsBalance[fungibleAssets]+=amountToAdd;
 
             else
-                FungibleAssetsBalance.Add(fungibleAssets,amountToAdd);
+            {
+                Random random=new Random();
+                var getAmount=random.Next((int)0,(int)5.5);
+                FungibleAssetsBalance.Add(fungibleAssets,getAmount);
 
+            }
             return true;
         }
         public virtual bool ReduceSupportedFungibleAssetsBalance(Guid fungibleAssets,double amountToRemove)
@@ -97,6 +101,7 @@ namespace CryptoWallet.Wallets
       */
         public void MakeFungibleTransaction(Wallet receiverWallet,Guid assetAddress,double amount)
         {
+            //FungibleAssets newAsset;
             if(!this.AllowedFungibleAssets.Contains(assetAddress))
                 return;
             if(!receiverWallet.AllowedFungibleAssets.Contains(assetAddress))
@@ -112,8 +117,39 @@ namespace CryptoWallet.Wallets
             this.TransactionHistory.Add(newTransaction.GetId(),newTransaction);
             receiverWallet.TransactionHistory.Add(newTransaction.GetId(),newTransaction);
             Console.WriteLine("You have successfully made a transaction!");
+            
+
             //return;
         }
+        public void MakeNonFungibleTransaction(Wallet receiverWallet,Guid assetAddress)
+        {
+            if(!OwnedNonFungibleAssets.Contains(assetAddress))
+                return;
+            if(receiverWallet.OwnedNonFungibleAssets.Contains(assetAddress))
+                return;
+
+            NonFungibleAssetTransactions newTransaction=new(assetAddress,this,receiverWallet);
+
+            receiverWallet.OwnedNonFungibleAssets.Add(assetAddress);
+            this.OwnedNonFungibleAssets.Remove(assetAddress);
+            receiverWallet.TransactionHistory.Add(newTransaction.GetId(),newTransaction);
+            this.TransactionHistory.Add(newTransaction.GetId(),newTransaction);
+    
+            Console.WriteLine("You have made a successfull transfer");
+
+            //make method to change crypto value
+        }
+       /*  public virtual void MakeNonFungibleTransaction(Wallet receiverWallet,Guid assetAddress,double amount)
+        {
+            if(!this.DoesOwnNonFungibleAsset())
+            {
+                Console.WriteLine("Your wallet does no own this asser!");
+                return;
+            }
+            if(receiverWallet)
+                
+        }
+ */
 
         public virtual double TotalValueOfFungibleAssetsInUSD(List<FungibleAssets> fungibleAssetList)//ova je samo za FA
         {
@@ -152,9 +188,5 @@ namespace CryptoWallet.Wallets
             return null;
         }
 
-        internal void MakeFungibleTransaction(Guid address, Guid assetAddress, double amount)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

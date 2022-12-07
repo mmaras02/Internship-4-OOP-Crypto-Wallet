@@ -7,7 +7,7 @@ using CryptoWallet.Assets;
 
 namespace CryptoWallet.Transactions
 {
-    public abstract  class NonFungibleAssetTransactions:Transaction
+    public class NonFungibleAssetTransactions:Transaction
     { 
         public NonFungibleAssetTransactions(Guid assetAddress, ConnectWithNonFungibleAssets senderWallet, ConnectWithNonFungibleAssets receiverWallet):base(assetAddress,senderWallet,receiverWallet)
         {
@@ -16,6 +16,10 @@ namespace CryptoWallet.Transactions
 
             senderWallet.OwnedNonFungibleAssets.Remove(assetAddress);
             receiverWallet.OwnedNonFungibleAssets.Add(assetAddress);       
+        }
+
+        public NonFungibleAssetTransactions(Guid assetAddress, Wallet senderWallet, Wallet receiverWallet) : base(assetAddress, senderWallet, receiverWallet)
+        {
         }
 
         /* public NonFungibleAssetTransactions CreateNewTransaction(Wallet senderWallet,Wallet receiverWallet,Guid assetAddress)

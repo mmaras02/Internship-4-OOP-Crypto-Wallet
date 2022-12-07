@@ -23,6 +23,7 @@ namespace CryptoWallet.Transactions
             TransactionDate = DateTime.Now;
             SenderAddress = senderWallet.Address;
             ReceiverAddress = receiverWallet.Address;
+            TransactionType="";
             //IsItCanceled = false;-->set na transakciji
         }
         public Guid GetId() => Id;

@@ -28,7 +28,7 @@ namespace CryptoWallet
                             CreateWallet(allWallets,fungibleAssetList,nonFungibleAssetList);
                             break;
                         case 2:
-                            //Console.Clear();
+                            Console.Clear();
                             AccessWallet(allWallets,fungibleAssetList,nonFungibleAssetList);
                             break;
                         default :
@@ -183,8 +183,6 @@ namespace CryptoWallet
             //nac wallet s istom adresom iz all wallets
             //Wallet wallet=allWallets.Keys.Equals(walletAddress);
             allWallets.TryGetValue(walletAddress,out Wallet wallet);
-            if(wallet.WalletTypes is "Solana wallet" || wallet.WalletTypes is "Ethereum wallet")
-            //allWallets.TryGetValue(walletAddress,out Wallet? wallet);
 
             Console.WriteLine($"Total value in USD: {wallet.TotalValueOfFungibleAssetsInUSD(fungibleAssetList)}");
             Console.WriteLine("\nList of fungible assets in this wallet:");
@@ -215,6 +213,8 @@ namespace CryptoWallet
             //string? receiverWalletAddressString=Console.ReadLine();
             Guid receiverWalletAddress=Guid.Parse(Console.ReadLine());
             Console.WriteLine("Enter the asset address you want to transfer");
+            //var assetName=Console.ReadLine();   
+            //Guid nfAsset=nonFungibleAssetList.Find(x => x.Name.Equals(assetName)).Address;//provaj popravit tablicu
             string? assetsAddress=Console.ReadLine();
             Guid assetAddress=Guid.Parse(assetsAddress);
 
@@ -226,17 +226,27 @@ namespace CryptoWallet
             }
             if(isFungable)
             {
-                Console.WriteLine("Please enter the amount you want to transfer: ");//imamo sender adresu i receiver adresu-->znamo da je ttansakcija fungible
+                Console.WriteLine("Please enter the amount you want to transfer: ");
                 double.TryParse(Console.ReadLine(),out double amount);
 
                 if(UserInput())
                 {
-                    allWallets[walletGuid].MakeFungibleTransaction(allWallets[receiverWalletAddress].Address,assetAddress,amount);
+                    allWallets[walletGuid].MakeFungibleTransaction(allWallets[receiverWalletAddress],assetAddress,amount);
+                    FungibleAssets asset=fungibleAssetList.Find(x=>x.Address.Equals(assetAddress));
+                    asset.ChangeAssetValue();
                 }
-
             }
-
-
+            else
+            {
+                allWallets[walletGuid].MakeNonFungibleTransaction(allWallets[receiverWalletAddress],assetAddress);
+        
+                NonFungibleAssets nfAsset=nonFungibleAssetList.Find(x=>x.Address.Equals(assetAddress));
+                foreach(var item in fungibleAssetList)
+                {
+                    if(item.Address==nfAsset.AllowedFungibleAssetAddress)
+                        item.ChangeAssetValue();
+                }
+            }
         }
         static List<FungibleAssets> AddFungibleAssets()//GetAllData()
         {

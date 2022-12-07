@@ -36,9 +36,9 @@ namespace CryptoWallet.Wallets
                 //    OwnedNonFungibleAssets.Add(item.Address);
             }
         }
-        public virtual bool DoesOwnNonFungibleAsset(Guid nonFungibleAsset)
+        public virtual bool DoesOwnNonFungibleAsset()
         {
-            if (OwnedNonFungibleAssets.Contains(nonFungibleAsset))
+            if (OwnedNonFungibleAssets.Contains(this.Address))
                 return true;
             return false;
         }
@@ -55,25 +55,13 @@ namespace CryptoWallet.Wallets
                 return;
             AllowedNonFungibleAssets.Add(nonFungibleAsset);
         }
-        // public override void PrintWallet(List<FungibleAssets> fungibleAssetList)
-        // {
-        //     foreach(var item in fungibleAssetList)
-        //     {
-
-        //     }
-        // }
-        public void MakeTransaction(Wallet receiverWallet,Guid assetAddress,double amount)
-        {
-            if(!OwnedNonFungibleAssets.Contains(assetAddress))
-                return;
-            //NonFungibleAssetTransactions=new()
-        }
         public override double TotalValueOfFungibleAssetsInUSD(List<FungibleAssets> fungibleAssetList)
         {
 
             return base.TotalValueOfFungibleAssetsInUSD(fungibleAssetList);
 
         }
+
 
     }
 }

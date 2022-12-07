@@ -8,12 +8,12 @@ namespace CryptoWallet.Assets
 {
     public  class NonFungibleAssets:Assets
     {
-        public double Value { get; set; }
-        public Guid AllowedFungibleAssetAddress{get;}
+        //public double Value { get; set; }
+        public Guid AllowedFungibleAssetAddress{get;set;}//adresa fungible asseta
         //dodat currency?
-        public NonFungibleAssets(string name,double value,Guid supportedFungibleAssetAddress):base(name)
+        public NonFungibleAssets(string name,double value,Guid supportedFungibleAssetAddress):base(name,value)
         {
-            Value=value;
+            //Value=value;
             AllowedFungibleAssetAddress=supportedFungibleAssetAddress;
             AssetType="Non fungible asset";
         }
