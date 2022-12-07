@@ -7,6 +7,7 @@ namespace CryptoWallet.Wallets
 {
     public class BitcoinWallet : Wallet
     {
+
         public BitcoinWallet() :base(){}
        
         public override bool AddSupportedFungibleAsssets(Guid fungibleAssets) => base.AddSupportedFungibleAsssets(fungibleAssets);
@@ -16,17 +17,12 @@ namespace CryptoWallet.Wallets
         public BitcoinWallet(List<FungibleAssets>fungibleAssetList)
         {
             WalletTypes="Bitcoin wallet";
-
             foreach(var item in fungibleAssetList)
             {
                 AllowedFungibleAssets.Add(item.Address);
-                IncreaseFungibleAssetsBalance(item.Address,5);//random stavi
+                IncreaseFungibleAssetsBalance(item.Address,item.Value);
             }
-        }
-        public void PrintAllowedFungibleAssets()
-        {
-            foreach(var item in FungibleAssetsBalance)
-                Console.WriteLine(item);
+
         }
     }
 }

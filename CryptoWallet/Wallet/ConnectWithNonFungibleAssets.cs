@@ -8,15 +8,14 @@ namespace CryptoWallet.Wallets
 {
     public class ConnectWithNonFungibleAssets : Wallet
     {
-        //public List<Guid> OwnedNonFungibleAssets { get; private set; }//change u dictionary??
-        //public List<Guid>AllowedNonFungibleAssets{get;set;}
         public List<string>AllowedAssetNames=new List<string>{"tether", "cardano", "ethereum","bitcoin","polygon"};
 
         public ConnectWithNonFungibleAssets(List<FungibleAssets>fungibleAssetList,List<NonFungibleAssets>nonFungibleAssetList):base()
         {    
+
             OwnedNonFungibleAssets=new List<Guid>();
             AllowedNonFungibleAssets=new List<Guid>();
-
+        
             LoadAssets(fungibleAssetList,nonFungibleAssetList);
         }
         public override bool AddSupportedFungibleAsssets(Guid fungibleAssets) => base.AddSupportedFungibleAsssets(fungibleAssets);
@@ -27,13 +26,11 @@ namespace CryptoWallet.Wallets
             foreach(var item in fungibleAssetList)
             {
                 AllowedFungibleAssets.Add(item.Address);
-                IncreaseFungibleAssetsBalance(item.Address,0);
+                IncreaseFungibleAssetsBalance(item.Address,item.Value);
             }
             foreach(var item in nonFungibleAssetList)
             {
                 AddSupportedNonFungibleAsset(item.Address);
-                //if(!DoesOwnNonFungibleAsset(item.Address))
-                //    OwnedNonFungibleAssets.Add(item.Address);
             }
         }
         public virtual bool DoesOwnNonFungibleAsset()
@@ -55,10 +52,17 @@ namespace CryptoWallet.Wallets
                 return;
             AllowedNonFungibleAssets.Add(nonFungibleAsset);
         }
-        public override double TotalValueOfFungibleAssetsInUSD(List<FungibleAssets> fungibleAssetList)
+        public override double TotalValueOfAssetsInUSD(List<FungibleAssets> fungibleAssetList,List<NonFungibleAssets>nonFungibleAssetList)
         {
+            double sum=0;
+            foreach(var item in OwnedNonFungibleAssets)
+            {
+                var asset=nonFungibleAssetList.Find(x=>x.Address.Equals(item));
+                var fungible=asset.GetAllowedFungibleAsset(fungibleAssetList);
+                sum+=fungible.Value*asset.Value;
+            }
 
-            return base.TotalValueOfFungibleAssetsInUSD(fungibleAssetList);
+            return Math.Round(base.TotalValueOfAssetsInUSD(fungibleAssetList,nonFungibleAssetList)+sum,2);
 
         }
 

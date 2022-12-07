@@ -24,7 +24,7 @@ namespace CryptoWallet.Transactions
             SenderAddress = senderWallet.Address;
             ReceiverAddress = receiverWallet.Address;
             TransactionType="";
-            //IsItCanceled = false;-->set na transakciji
+            IsItCanceled = false;
         }
         public Guid GetId() => Id;
         public virtual bool CancelTransaction(Wallet senderWaller, Wallet receiverWallet)
@@ -33,12 +33,5 @@ namespace CryptoWallet.Transactions
                 return false;
             return true;
         }
-        public void PrintTransaction()
-        {
-            
-        }
-        //CancellationToken transaction-->novac se vraca u sender vallet s istin assetom na odredenoj adresi
-        //-->u receiver walletu se oduzima na istoj adresi tocan iznos transakcije
-
     }
 }

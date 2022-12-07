@@ -6,17 +6,17 @@ using CryptoWallet.Transactions;
 using System.Transactions;
 using System.Collections;
 using Transaction = CryptoWallet.Transactions.Transaction;
+using ConsoleTables;
 
-//stavi za racunanje USD
+
 namespace CryptoWallet.Wallets
 {
     public abstract class Wallet
     {
-         public List<Guid> OwnedNonFungibleAssets { get;  set; }//change u dictionary??
+         public List<Guid> OwnedNonFungibleAssets { get;  set; }
         public List<Guid>AllowedNonFungibleAssets{get;set;}
         public Guid Address{get;}
-        public List<Guid>AllowedFungibleAssets{get;set;}//Assetsi koje mozemo posjedovat
-        //public List<Guid> TransactionHistory{get;private set;}
+        public List<Guid>AllowedFungibleAssets{get;set;}
         public Dictionary<Guid,double>FungibleAssetsBalance{get;private set;}
         public string WalletTypes { get; set;}
         public Dictionary<Guid,Transaction> TransactionHistory{get;set;}
@@ -25,12 +25,10 @@ namespace CryptoWallet.Wallets
         {
             Address=Guid.NewGuid();
             AllowedFungibleAssets=new List<Guid>();
-            //TransactionHistory=new List<Guid>();
             FungibleAssetsBalance=new Dictionary<Guid, double>();
             WalletTypes="";
             TransactionHistory=new Dictionary<Guid, Transaction>();
-            //OwnedNonFungibleAssets=new List<Guid>();
-            //AllowedNonFungibleAssets=new List<Guid>();
+        
         }
         public virtual bool AddSupportedFungibleAsssets(Guid fungibleAssets)
         {
@@ -51,10 +49,7 @@ namespace CryptoWallet.Wallets
 
             else
             {
-                Random random=new Random();
-                var getAmount=random.Next((int)0,(int)5.5);
-                FungibleAssetsBalance.Add(fungibleAssets,getAmount);
-
+                FungibleAssetsBalance.Add(fungibleAssets,amountToAdd);
             }
             return true;
         }
@@ -97,9 +92,6 @@ namespace CryptoWallet.Wallets
             this.TransactionHistory.Add(newTransaction.GetId(),newTransaction);
             receiverWallet.TransactionHistory.Add(newTransaction.GetId(),newTransaction);
             Console.WriteLine("You have successfully made a transaction!");
-            
-
-            //return;
         }
         public void MakeNonFungibleTransaction(Wallet receiverWallet,Guid assetAddress)
         {
@@ -117,9 +109,8 @@ namespace CryptoWallet.Wallets
     
             Console.WriteLine("You have made a successfull transfer");
         }
-        public virtual double TotalValueOfFungibleAssetsInUSD(List<FungibleAssets> fungibleAssetList)//ova je samo za FA
+        public virtual double TotalValueOfAssetsInUSD(List<FungibleAssets> fungibleAssetList,List<NonFungibleAssets>nonFungibleAsset)//ova je samo za FA
         {
-            //var wallet = wallets.Find(x => x.Address.Equals(walletAddress));
             double sum = 0;
             foreach (var item in FungibleAssetsBalance)
             {
@@ -128,30 +119,15 @@ namespace CryptoWallet.Wallets
             }
             return sum;
         }
-        public virtual void PrintAssets(List<FungibleAssets> fungibleAssetList, List<NonFungibleAssets> nonFungibleAssetList)
-        {
-                foreach(var item in FungibleAssetsBalance)
-                {
-                    var searchFungible=FindFungible(fungibleAssetList, item.Key);
-                    Console.WriteLine($"{searchFungible.Address} - {searchFungible.Name} - {searchFungible.GetLabel()}");//dodat enum assetTipe?? 
-                }
-        }
-        public FungibleAssets FindFungible(List<FungibleAssets> fungibleAssetList,Guid address)
-        {
-            foreach(var item in fungibleAssetList)
-            {
-                //FungibleAssets asset=fungibleAssetList.Find(x=>x.Address.Equals(item.Address));
-                if(item.Address==address) return item;
-            }
-            return null;
-        }
         public void PrintTransaction()
         {
             var listSorted=TransactionHistory.Values.OrderByDescending(x => x.TransactionDate).ToList();
+
             foreach(var item in listSorted)
             {
-                Console.WriteLine($"Id: {item.GetId()}\nTransaction date: {item.TransactionDate}\nType of transaction: {item.TransactionType}\nSender wallet address: {item.SenderAddress}\nReceiver wallet Address: {item.ReceiverAddress}\n");
-                Console.WriteLine("---------------------------------------------------");
+                Console.WriteLine($"Transaction Id: {item.GetId()}\nTransaction date: {item.TransactionDate}\nType of transaction: {item.TransactionType}\nSender wallet address: {item.SenderAddress}\nReceiver wallet Address: {item.ReceiverAddress}\nWas canceled:{item.IsItCanceled}");
+                Console.WriteLine("----------------------------------------------------------");
+
             }
         }
 

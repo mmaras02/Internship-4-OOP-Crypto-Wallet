@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CryptoWallet.Wallets;
 using CryptoWallet.Assets;
 using CryptoWallet.Transactions;
+using ConsoleTables;
 
 namespace CryptoWallet
 {
@@ -12,7 +13,6 @@ namespace CryptoWallet
         {
             List<FungibleAssets> fungibleAssetList=AddFungibleAssets();
             List<NonFungibleAssets> nonFungibleAssetList=AddNonFungibleAssets(fungibleAssetList);
-            //Dictionary<Guid,Wallet>allWallets=new Dictionary<Guid, Wallet>();
             var allWallets=GetWallets(fungibleAssetList,nonFungibleAssetList);
 
             var choice=-1;
@@ -124,12 +124,14 @@ namespace CryptoWallet
         static void AccessWallet(Dictionary<Guid,Wallet>allWallets,List<FungibleAssets>fungibleAssetList,List<NonFungibleAssets>nonFungibleAssetList)
         {
             Console.Clear();
+            var waletTable = new ConsoleTable("Wallet address", "Wallet type", "Total asset value");
 
-            Console.WriteLine("Wallet Address\t\t\tWallet type\t\t\tTotal asset value  ");
-            foreach(var item in allWallets)//print napravi u f-ji
+            foreach(var item in allWallets)
             {
-                Console.WriteLine($"{item.Key}\t {item.Value.WalletTypes}\t\t{((decimal)item.Value.TotalValueOfFungibleAssetsInUSD(fungibleAssetList))}");
+                waletTable.AddRow(item.Key,item.Value.WalletTypes,item.Value.TotalValueOfAssetsInUSD(fungibleAssetList,nonFungibleAssetList));
             }
+            waletTable.Write(Format.Minimal);
+            
 
             Console.WriteLine("Please enter the address of the wallet you want to access:");
             Guid walletGuid=Guid.Parse(Console.ReadLine());
@@ -146,7 +148,7 @@ namespace CryptoWallet
                 switch(choice)
                 {
                     case 1:
-                        Portafolio(walletGuid,allWallets,fungibleAssetList,nonFungibleAssetList);//dodat portafolioClass(helperClass)??
+                        Portafolio(walletGuid,allWallets,fungibleAssetList,nonFungibleAssetList);
                         break;
                     case 2:
                         Transfer(walletGuid,allWallets,fungibleAssetList,nonFungibleAssetList);
@@ -160,49 +162,42 @@ namespace CryptoWallet
                         break;
                 }
             }while(choice!=4);
-
         }
-        
         static void Portafolio(Guid walletAddress,Dictionary<Guid,Wallet>allWallets,List<FungibleAssets>fungibleAssetList,List<NonFungibleAssets>nonFungibleAssetList)
         {
-            //nac wallet s istom adresom iz all wallets
-            //Wallet wallet=allWallets.Keys.Equals(walletAddress);
             allWallets.TryGetValue(walletAddress,out Wallet wallet);
 
-            Console.WriteLine($"Total value in USD: {wallet.TotalValueOfFungibleAssetsInUSD(fungibleAssetList)}");
-            Console.WriteLine("\nList of fungible assets in this wallet:");
+            Console.WriteLine($"Total value in USD: {(decimal)wallet.TotalValueOfAssetsInUSD(fungibleAssetList,nonFungibleAssetList)}");
+            Console.WriteLine("\nFungible assets information:\n");
+
+            var fungibleAssetTable = new ConsoleTable("Address", "Name", "Label", "Crypto value", "Total Value in USD","Value change");
 
             foreach(var item in wallet.FungibleAssetsBalance)//samo fungible assets
             {
-                var asset=fungibleAssetList.Find(x => x.Address.Equals(item.Key));//provaj popravit tablicu
-                Console.WriteLine($"{asset.Address} - {asset.Name} - {asset.GetLabel()} - {item.Value}m - {asset.GetValueInUSD()} - {asset.AssetType}");
-                
+                var temp=fungibleAssetList.Find(x=>x.Address.Equals(item));
+                var asset=fungibleAssetList.Find(x => x.Address.Equals(item.Key));
+
+                fungibleAssetTable.AddRow(asset.Address,asset.Name,asset.GetLabel(),item.Value,asset.GetValueInUSD(),$"{asset.ValueChangeInPercentage}%");
             }
-            Console.WriteLine("\nList of not fungible assets in this wallet: ");
+            fungibleAssetTable.Write(Format.Minimal);
+
+            Console.WriteLine("\nNot fungible assets information:\n ");
             if(wallet.WalletTypes is "Bitcoin wallet")
             {
                 Console.WriteLine("Bitcoin wallet doesn't have any non fungible assets!\n");
                 return;
-            }
-            //trebamo nac ownedassets iz walleta
+            } 
+
+            var nonFungibleAssetTable = new ConsoleTable("Address", "Name","Crypto value","Total value in USD");
             foreach(var item in wallet.OwnedNonFungibleAssets)
             {
-                var nfAsset=nonFungibleAssetList.Find(x => x.Address.Equals(item));//provaj popravit tablicu
-                Console.WriteLine($"{nfAsset.Address} - {nfAsset.Name} - {nfAsset.AssetType}");
+                var nfAsset=nonFungibleAssetList.Find(x => x.Address.Equals(item));
+                FungibleAssets allowedFungible=nfAsset.GetAllowedFungibleAsset(fungibleAssetList);
+                var cryptoValue=nfAsset.GetValueInUSD(fungibleAssetList);
+
+                nonFungibleAssetTable.AddRow(nfAsset.Address,nfAsset.Name,nfAsset.Value,$"{cryptoValue}");
             }
-            //trazimo
-        }
-        static bool CheckAsset(List<FungibleAssets>fungibleAssetList,Guid assetAddress)
-        {
-            foreach(var item in fungibleAssetList)
-            {
-                if(!item.Address.Equals(assetAddress))
-                {
-                    Console.WriteLine("Asset not found in wallet!");
-                    return false;
-                }
-            }
-            return true;
+            nonFungibleAssetTable.Write(Format.Minimal);
         }
         static void Transfer(Guid walletGuid,Dictionary<Guid,Wallet>allWallets,List<FungibleAssets>fungibleAssetList,List<NonFungibleAssets>nonFungibleAssetList)
         {
@@ -213,8 +208,6 @@ namespace CryptoWallet
 
             Console.WriteLine("Enter the asset address you want to transfer");
             Guid assetAddress=Guid.Parse(Console.ReadLine());
-            if(!CheckAsset(fungibleAssetList,assetAddress))
-                return;
 
             bool isFungable=false;
             foreach(var item in fungibleAssetList)
@@ -225,7 +218,12 @@ namespace CryptoWallet
             if(isFungable)
             {
                 Console.WriteLine("Please enter the amount you want to transfer: ");
-                double.TryParse(Console.ReadLine(),out double amount);
+                bool success=double.TryParse(Console.ReadLine(),out double amount);
+                if(!success)
+                {
+                    Console.WriteLine("wrong input!");
+                    return;
+                }
 
                 if(UserInput())
                 {
@@ -233,6 +231,7 @@ namespace CryptoWallet
                     FungibleAssets asset=fungibleAssetList.Find(x=>x.Address.Equals(assetAddress));
                     asset.ChangeAssetValue();
                 }
+                else Console.WriteLine("The action has been stopped!");
             }
             else
             {
@@ -270,7 +269,7 @@ namespace CryptoWallet
             if(!walletOfInterest.TransactionHistory.ContainsKey(transactionId))
                 return;
             
-            Transaction foundTransaction=walletOfInterest.TransactionHistory[transactionId];//koja je transakcija-->iz transakcije nadi sender/receiver adrese
+            Transaction foundTransaction=walletOfInterest.TransactionHistory[transactionId];
             Wallet senderWallet=allWallets[foundTransaction.SenderAddress];
             Wallet receiverWallet=allWallets[foundTransaction.ReceiverAddress];
 

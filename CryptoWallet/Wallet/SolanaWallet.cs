@@ -8,7 +8,6 @@ namespace CryptoWallet.Wallets
 {
     public class SolanaWallet : ConnectWithNonFungibleAssets
     {
-        //public SolanaWallet():base(){}
         public SolanaWallet(List<FungibleAssets> fungibleAssetList, List<NonFungibleAssets> nonFungibleAssetList) : base(fungibleAssetList, nonFungibleAssetList) => WalletTypes = "Solana wallet";
 
         public override bool AddSupportedFungibleAsssets(Guid fungibleAssets) => base.AddSupportedFungibleAsssets(fungibleAssets);

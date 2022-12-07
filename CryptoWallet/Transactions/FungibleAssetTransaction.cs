@@ -9,8 +9,6 @@ namespace CryptoWallet.Transactions
 {
     public class FungibleAssetTransactions:Transaction
     {
-        //private static Wallet senderWallet;
-
         public double StartingReceiverBalance{get;private set;}
         public double FinalReceiverBalance{get;private set;}
         public double StartingSenderBalance{get;private set;}
@@ -31,6 +29,7 @@ namespace CryptoWallet.Transactions
             receiverWallet.FungibleAssetsBalance[AssetAddress] =StartingReceiverBalance;
             senderWallet.FungibleAssetsBalance[AssetAddress] =StartingSenderBalance;
             IsItCanceled=true;
+            
 
             return true;
         }
@@ -38,6 +37,7 @@ namespace CryptoWallet.Transactions
         {
             FinalReceiverBalance=StartingReceiverBalance+amount;
             FinalSenderBalance=StartingSenderBalance-amount;
+
         }
     }
 }

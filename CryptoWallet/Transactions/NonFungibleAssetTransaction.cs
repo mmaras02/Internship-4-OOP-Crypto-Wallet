@@ -17,15 +17,5 @@ namespace CryptoWallet.Transactions
             senderWallet.OwnedNonFungibleAssets.Remove(assetAddress);
             receiverWallet.OwnedNonFungibleAssets.Add(assetAddress);       
         }
-
-        // public NonFungibleAssetTransactions(Guid assetAddress, Wallet senderWallet, Wallet receiverWallet) : base(assetAddress, senderWallet, receiverWallet)
-        // {
-        // }
-
-        /* public NonFungibleAssetTransactions CreateNewTransaction(Wallet senderWallet,Wallet receiverWallet,Guid assetAddress)
-        {
-            NonFungibleAssetTransactions newTransaction=new(assetAddress, senderWallet, receiverWallet);
-            return newTransaction;
-        } */
     }
 }
